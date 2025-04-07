@@ -1,0 +1,15 @@
+# Python bytecode files
+*.pyc
+*.pyo
+__pycache__/
+
+# Virtual environment
+venv/
+.env/
+
+# Flask instance folder
+instance/
+
+# IDE or editor files
+.vscode/
+.idea/
