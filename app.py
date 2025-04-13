@@ -3,28 +3,27 @@ import cv2
 import numpy as np
 from ultralytics import YOLO
 from flask import Flask, render_template, Response
-import threading
 
 # Initialize Flask app
 app = Flask(__name__)
 
-# Load YOLO model (update the path to your best.pt model)
-model_path = "my_model/train/weights/best.pt"  # Path to your YOLO model
+# Load YOLO model (update the path dynamically or use a default)
+model_path = os.environ.get("MODEL_PATH", "my_model/train/weights/best.pt")  # Path to your YOLO model
 model = YOLO(model_path, task='detect')  # Load the YOLO model
 labels = model.names  # Get labels for YOLO classes
 
-# Initialize video capture (webcam)
-cap = cv2.VideoCapture(0)  # Use 0 for default webcam (you can change this if you have a different camera source)
+# Initialize video capture (webcam or external video source)
+cap = cv2.VideoCapture(int(os.environ.get("CAMERA_INDEX", 0)))  # Camera index from environment variables or default
 
-# Define frame size (optional, can be set to your desired resolution)
-frame_width = 640
-frame_height = 480
+# Define frame size (optional, can be set dynamically)
+frame_width = int(os.environ.get("FRAME_WIDTH", 640))
+frame_height = int(os.environ.get("FRAME_HEIGHT", 480))
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, frame_width)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, frame_height)
 
-# Set bounding box colors (for displaying on detected objects)
-bbox_colors = [(164,120,87), (68,148,228), (93,97,209), (178,182,133), (88,159,106),
-               (96,202,231), (159,124,168), (169,162,241), (98,118,150), (172,176,184)]
+# Set bounding box colors (for displaying detected objects)
+bbox_colors = [(164, 120, 87), (68, 148, 228), (93, 97, 209), (178, 182, 133), (88, 159, 106),
+               (96, 202, 231), (159, 124, 168), (169, 162, 241), (98, 118, 150), (172, 176, 184)]
 
 # Function to process and detect objects in frames
 def process_frame():
@@ -72,10 +71,12 @@ def video_feed():
     return Response(process_frame(), 
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
-# Route for the index page (you can add HTML or just display a simple message)
+# Route for the index page
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return "<h1>Live Stream is Active!</h1><p>Visit <a href='/video_feed'>/video_feed</a> to view the stream.</p>"
 
 if __name__ == '__main__':
-    app.run(debug=True, threaded=True)
+    # Use dynamic port for Render deployment
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, threaded=True)
