@@ -74,7 +74,7 @@ def video_feed():
 # Route for the index page
 @app.route('/')
 def index():
-    return "<h1>Live Stream is Active!</h1><p>Visit <a href='/video_feed'>/video_feed</a> to view the stream.</p>"
+    return render_template('index.htmml')
 
 if __name__ == '__main__':
     # Use dynamic port for Render deployment
